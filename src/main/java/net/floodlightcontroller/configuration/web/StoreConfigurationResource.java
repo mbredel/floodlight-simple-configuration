@@ -31,6 +31,8 @@ package net.floodlightcontroller.configuration.web;
 * written permission.
 */
 
+import java.io.IOException;
+
 import net.floodlightcontroller.configuration.IConfigurationService;
 
 import org.restlet.resource.Get;
@@ -53,9 +55,13 @@ public class StoreConfigurationResource extends ServerResource {
 		IConfigurationService configService = (IConfigurationService) getContext().getAttributes().get(IConfigurationService.class.getCanonicalName());
         
 		String param = (String) getRequestAttributes().get("file");
-		if (log.isDebugEnabled())
-			log.debug("Store configuration at file: " + param);
 		
-		configService.saveConfiguration(param);
+		try {
+			configService.saveConfiguration(param);
+			if (log.isDebugEnabled())
+				log.debug("Store configuration at file {}." + param);
+		} catch (IOException e) {
+			log.warn("Save configuration to file {} failed.", param);
+		}
 	}
 }

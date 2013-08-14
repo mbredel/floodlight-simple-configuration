@@ -31,6 +31,8 @@ package net.floodlightcontroller.configuration;
 * written permission.
 */
 
+import java.io.IOException;
+
 import net.floodlightcontroller.core.module.IFloodlightService;
 
 /**
@@ -45,7 +47,7 @@ public interface IConfigurationService extends IFloodlightService {
 	 * 
 	 * @param file An optional configuration file name.
 	 */
-	public void saveConfiguration(String fileName);
+	public void saveConfiguration(String fileName) throws IOException;
 	
 	/**
 	 * Loads the configuration of all modules implementing the
@@ -53,7 +55,7 @@ public interface IConfigurationService extends IFloodlightService {
 	 * 
 	 * @param file An optional configuration file name.
 	 */
-	public void restoreConfiguration(String fileName);
+	public void restoreConfiguration(String fileName) throws IOException;
 	
 	/**
 	 * Returns a string representing the current configuration of all 

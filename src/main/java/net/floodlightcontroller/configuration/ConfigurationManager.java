@@ -33,6 +33,7 @@ package net.floodlightcontroller.configuration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -142,7 +143,7 @@ public class ConfigurationManager implements IFloodlightModule, IConfigurationSe
 	}
 
 	@Override
-	public void saveConfiguration(String fileName) {
+	public void saveConfiguration(String fileName) throws IOException {
 		if (fileName == null) {
 			this.writeJsonToFile(DEFAULT_FILE_NAME);
 		} else {
@@ -198,7 +199,7 @@ public class ConfigurationManager implements IFloodlightModule, IConfigurationSe
 	 * 
 	 * @param file An optional configuration file name.
 	 */
-	private void writeJsonToFile(String fileName) {
+	private void writeJsonToFile(String fileName) throws IOException {
 		String configFile = (fileName != null) ? fileName : this.fileName;
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode rootNode = createJsonRootNode();
@@ -213,6 +214,7 @@ public class ConfigurationManager implements IFloodlightModule, IConfigurationSe
 			if (logger.isErrorEnabled()) {
 				logger.error("Could not write the JSON configuration file.");
 			}
+			throw new IOException("Could not write the JSON configuration file");
 		}
 	}
 	
@@ -231,6 +233,9 @@ public class ConfigurationManager implements IFloodlightModule, IConfigurationSe
 		try {
 			jp = f.createJsonParser(new File(configFile));
 			JsonNode root = mapper.readTree(jp);
+			// Check if the file is empty.
+			if (root == null)
+				return;
 			Iterator<Entry<String, JsonNode>> iter = root.fields();
 			// For every configuration sub-node.
 			while (iter.hasNext()) {
@@ -244,6 +249,10 @@ public class ConfigurationManager implements IFloodlightModule, IConfigurationSe
 						logger.warn("No configuration listener found for " + fieldName);
 					}
 				}
+			}
+		} catch (FileNotFoundException e){
+			if (logger.isWarnEnabled()) {
+				logger.warn("Configuration file {} not found.", configFile);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

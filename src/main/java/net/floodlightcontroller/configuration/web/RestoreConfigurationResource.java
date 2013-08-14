@@ -31,6 +31,9 @@ package net.floodlightcontroller.configuration.web;
 * written permission.
 */
 
+import java.io.IOException;
+
+import net.floodlightcontroller.configuration.ConfigurationManager;
 import net.floodlightcontroller.configuration.IConfigurationService;
 
 import org.restlet.resource.Get;
@@ -54,13 +57,21 @@ public class RestoreConfigurationResource extends ServerResource {
 		
 		String param = (String) getRequestAttributes().get("file");
 		if (param != null) {
-			configService.restoreConfiguration(param);
-			if (log.isDebugEnabled())
-				log.debug("Restore configuration from file: " + param);
+			try {
+				configService.restoreConfiguration(param);
+				if (log.isDebugEnabled())
+					log.debug("Restore configuration from file {}.", param);
+			} catch (IOException e) {
+				log.warn("Restore configuration from file {} failed.", param);
+			}
 		} else {
-			configService.restoreConfiguration(null);
-			if (log.isDebugEnabled())
-				log.debug("Restore configuration from default file.");
+			try {
+				configService.restoreConfiguration(null);
+				if (log.isDebugEnabled())
+					log.debug("Restore configuration from default file {}.", ConfigurationManager.DEFAULT_FILE_NAME);
+			} catch (IOException e) {
+				log.warn("Restore configuration from default file {} failed.", ConfigurationManager.DEFAULT_FILE_NAME);
+			}
 		}
 	}
 }
